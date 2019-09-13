@@ -11,7 +11,7 @@ public class OrderModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String address;
-    private int price;
+    private int totalPrice;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
@@ -24,9 +24,9 @@ public class OrderModel {
     )
     private List<Product> orderedProducts;
 
-    public OrderModel(String address, int price, Client client, ArrayList<Product> orderedProducts) {
+    public OrderModel(String address, int totalPrice, Client client, ArrayList<Product> orderedProducts) {
         this.address = address;
-        this.price = price;
+        this.totalPrice = totalPrice;
         this.client = client;
         this.orderedProducts = orderedProducts;
     }
@@ -47,12 +47,12 @@ public class OrderModel {
         this.address = address;
     }
 
-    public int getPrice() {
-        return price;
+    public int getTotalPrice() {
+        return totalPrice;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
+    public void setTotalPrice(int totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public Client getClient() {

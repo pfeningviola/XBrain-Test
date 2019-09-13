@@ -2,8 +2,12 @@ package com.xbrain.testproject.controllers;
 
 import com.xbrain.testproject.models.dtos.ErrorMessage;
 import com.xbrain.testproject.models.dtos.OrderRequestDTO;
+import com.xbrain.testproject.models.dtos.SavedOrderDTO;
+import com.xbrain.testproject.models.entities.Client;
+import com.xbrain.testproject.models.entities.OrderModel;
 import com.xbrain.testproject.models.entities.Product;
 import com.xbrain.testproject.services.ClientService;
+import com.xbrain.testproject.services.OrderService;
 import com.xbrain.testproject.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +23,20 @@ import java.util.ArrayList;
 public class OrderController {
     private ClientService clientService;
     private ProductService productService;
+    private OrderService orderService;
 
     @Autowired
-    public OrderController(ClientService clientService, ProductService productService){
+    public OrderController(ClientService clientService, ProductService productService, OrderService orderService){
         this.clientService = clientService;
         this.productService = productService;
+        this.orderService = orderService;
     }
 
     @PostMapping("/order")
     public ResponseEntity<Object> createOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
         Long clientId = orderRequestDTO.getClientId();
         ArrayList<Long> orderedProductCodes = orderRequestDTO.getOrderedProductCodes();
-        int price = orderRequestDTO.getTotalPrice();
+        int totalPrice = orderRequestDTO.getTotalPrice();
         String address = orderRequestDTO.getAddress();
 
         if (clientId == null) {
@@ -45,7 +51,7 @@ public class OrderController {
             return ResponseEntity.status(400).body(new ErrorMessage("Missing parameter: address"));
         }
 
-        if (price < 0) {
+        if (totalPrice < 0) {
             return ResponseEntity.status(400).body(new ErrorMessage("Price is invalid"));
         }
 
@@ -62,6 +68,8 @@ public class OrderController {
             }
         }
 
-        return ResponseEntity.status(200).body();
+        Client client = clientService.findClientById(clientId);
+        OrderModel savedOrder = orderService.saveOrder(client, orderedProducts, totalPrice, address);
+        return ResponseEntity.status(200).body(new SavedOrderDTO(savedOrder.getId(), clientId, orderedProductCodes, totalPrice, address));
     }
 }
