@@ -2,7 +2,9 @@ package com.xbrain.testproject.controllers;
 
 import com.xbrain.testproject.models.dtos.ErrorMessage;
 import com.xbrain.testproject.models.dtos.OrderRequestDTO;
+import com.xbrain.testproject.models.entities.Product;
 import com.xbrain.testproject.services.ClientService;
+import com.xbrain.testproject.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,10 +18,12 @@ import java.util.ArrayList;
 @RestController
 public class OrderController {
     private ClientService clientService;
+    private ProductService productService;
 
     @Autowired
-    public OrderController(ClientService clientService){
+    public OrderController(ClientService clientService, ProductService productService){
         this.clientService = clientService;
+        this.productService = productService;
     }
 
     @PostMapping("/order")
@@ -47,6 +51,15 @@ public class OrderController {
 
         if (!clientService.isClientRegistered(clientId)){
             return ResponseEntity.status(406).body(new ErrorMessage("Given clientId is not registered"));
+        }
+
+        ArrayList<Product> orderedProducts = new ArrayList<>();
+        for (Long id : orderedProductCodes) {
+            if (!productService.existProduct(id)) {
+                return ResponseEntity.status(406).body(new ErrorMessage(id + " product code does not exist."));
+            } else {
+                orderedProducts.add(productService.findProductById(id));
+            }
         }
 
         return ResponseEntity.status(200).body();
