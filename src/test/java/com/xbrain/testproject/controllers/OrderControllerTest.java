@@ -55,6 +55,92 @@ public class OrderControllerTest {
     }
 
     @Test
+    public void createOrderShouldReturnError_when_clientIdIsMissing() throws Exception {
+        orderRequestDTO.setClientId(null);
+        String orderRequestDTOJson = objectMapper.writeValueAsString(orderRequestDTO);
+        String expectedErrorMessage = "Missing parameter: clientId";
+
+        mockMvc.perform(post("/order")
+                .contentType(contentType)
+                .content(orderRequestDTOJson))
+                .andExpect(status().is(400))
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.status", is("error")))
+                .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
+                .andDo(print());
+    }
+
+    @Test
+    public void createOrderShouldReturnError_when_orderedProductCodesIsMissing() throws Exception {
+        orderRequestDTO.setClientId(2L);
+        orderRequestDTO.setOrderedProductCodes(null);
+        String orderRequestDTOJson = objectMapper.writeValueAsString(orderRequestDTO);
+        String expectedErrorMessage = "Missing parameter: orderedProductCodes";
+
+        mockMvc.perform(post("/order")
+                .contentType(contentType)
+                .content(orderRequestDTOJson))
+                .andExpect(status().is(400))
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.status", is("error")))
+                .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
+                .andDo(print());
+    }
+
+    @Test
+    public void createOrderShouldReturnError_when_orderedProductCodesIsEmpty() throws Exception {
+        orderRequestDTO.setClientId(2L);
+        orderRequestDTO.setOrderedProductCodes(new ArrayList<>());
+        String orderRequestDTOJson = objectMapper.writeValueAsString(orderRequestDTO);
+        String expectedErrorMessage = "Missing parameter: orderedProductCodes";
+
+        mockMvc.perform(post("/order")
+                .contentType(contentType)
+                .content(orderRequestDTOJson))
+                .andExpect(status().is(400))
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.status", is("error")))
+                .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
+                .andDo(print());
+    }
+
+    @Test
+    public void createOrderShouldReturnError_when_addressIsMissing() throws Exception {
+        orderRequestDTO.setClientId(2L);
+        orderRequestDTO.setOrderedProductCodes(new ArrayList<>(Arrays.asList(1L, 2L)));
+        orderRequestDTO.setAddress(null);
+        String orderRequestDTOJson = objectMapper.writeValueAsString(orderRequestDTO);
+        String expectedErrorMessage = "Missing parameter: address";
+
+        mockMvc.perform(post("/order")
+                .contentType(contentType)
+                .content(orderRequestDTOJson))
+                .andExpect(status().is(400))
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.status", is("error")))
+                .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
+                .andDo(print());
+    }
+
+    @Test
+    public void createOrderShouldReturnError_when_addressIsEmpty() throws Exception {
+        orderRequestDTO.setClientId(2L);
+        orderRequestDTO.setOrderedProductCodes(new ArrayList<>(Arrays.asList(1L, 2L)));
+        orderRequestDTO.setAddress("  ");
+        String orderRequestDTOJson = objectMapper.writeValueAsString(orderRequestDTO);
+        String expectedErrorMessage = "Missing parameter: address";
+
+        mockMvc.perform(post("/order")
+                .contentType(contentType)
+                .content(orderRequestDTOJson))
+                .andExpect(status().is(400))
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.status", is("error")))
+                .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
+                .andDo(print());
+    }
+
+    @Test
     public void createOrderShouldReturnError_when_clientIdIsNotRegistered() throws Exception {
         orderRequestDTO.setClientId(5L);
         orderRequestDTO.setAddress("Londrina");

@@ -47,7 +47,7 @@ public class OrderController {
             return ResponseEntity.status(400).body(new ErrorMessage("Missing parameter: orderedProductCodes"));
         }
 
-        if (address == null || address.isEmpty()) {
+        if (address == null || address.trim().isEmpty()) {
             return ResponseEntity.status(400).body(new ErrorMessage("Missing parameter: address"));
         }
 
