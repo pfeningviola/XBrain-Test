@@ -70,6 +70,7 @@ public class OrderController {
 
         Client client = clientService.findClientById(clientId);
         OrderModel savedOrder = orderService.saveOrder(client, orderedProducts, totalPrice, address);
+        orderService.sendMessage(savedOrder.getId(), savedOrder.getAddress());
         return ResponseEntity.status(200).body(new SavedOrderDTO(savedOrder.getId(), clientId, orderedProductCodes, totalPrice, address));
     }
 }

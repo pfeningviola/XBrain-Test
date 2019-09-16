@@ -20,11 +20,10 @@ public class Client {
     public Client() {
     }
 
-    public Client(String name, String email, String password, ArrayList<OrderModel> orders) {
+    public Client(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.orders = orders;
     }
 
     public Long getId() {
