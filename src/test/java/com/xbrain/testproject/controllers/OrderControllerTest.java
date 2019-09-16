@@ -141,6 +141,25 @@ public class OrderControllerTest {
     }
 
     @Test
+    public void createOrderShouldReturnError_when_totalPriceIsLessThanZero() throws Exception {
+        orderRequestDTO.setClientId(2L);
+        orderRequestDTO.setOrderedProductCodes(new ArrayList<>(Arrays.asList(1L, 2L)));
+        orderRequestDTO.setAddress("Londrina");
+        orderRequestDTO.setTotalPrice(-300);
+        String orderRequestDTOJson = objectMapper.writeValueAsString(orderRequestDTO);
+        String expectedErrorMessage = "Price is invalid";
+
+        mockMvc.perform(post("/order")
+                .contentType(contentType)
+                .content(orderRequestDTOJson))
+                .andExpect(status().is(400))
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.status", is("error")))
+                .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
+                .andDo(print());
+    }
+
+    @Test
     public void createOrderShouldReturnError_when_clientIdIsNotRegistered() throws Exception {
         orderRequestDTO.setClientId(5L);
         orderRequestDTO.setAddress("Londrina");
@@ -150,6 +169,28 @@ public class OrderControllerTest {
         String expectedErrorMessage = "Given clientId is not registered";
 
         when(clientServiceMock.isClientRegistered(any())).thenReturn(false);
+
+        mockMvc.perform(post("/order")
+                .contentType(contentType)
+                .content(orderDTOJson))
+                .andExpect(status().is(406))
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.status", is("error")))
+                .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
+                .andDo(print());
+    }
+
+    @Test
+    public void createOrderShouldReturnError_when_productCodeIsNotRegistered() throws Exception {
+        orderRequestDTO.setClientId(3L);
+        orderRequestDTO.setAddress("Londrina");
+        orderRequestDTO.setOrderedProductCodes(new ArrayList<>(Arrays.asList(10L)));
+        orderRequestDTO.setTotalPrice(3000);
+        String orderDTOJson = objectMapper.writeValueAsString(orderRequestDTO);
+        String expectedErrorMessage = "10 product code does not exist.";
+
+        when(clientServiceMock.isClientRegistered(any())).thenReturn(true);
+        when(productServiceMock.existProduct(any())).thenReturn(false);
 
         mockMvc.perform(post("/order")
                 .contentType(contentType)
