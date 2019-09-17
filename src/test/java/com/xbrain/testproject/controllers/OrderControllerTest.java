@@ -2,6 +2,9 @@ package com.xbrain.testproject.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.xbrain.testproject.models.dtos.OrderRequestDTO;
+import com.xbrain.testproject.models.entities.Client;
+import com.xbrain.testproject.models.entities.OrderModel;
+import com.xbrain.testproject.models.entities.Product;
 import com.xbrain.testproject.services.ClientService;
 import com.xbrain.testproject.services.OrderService;
 import com.xbrain.testproject.services.ProductService;
@@ -20,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.hamcrest.core.Is.is;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -32,6 +35,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class OrderControllerTest {
     private static MediaType contentType;
     private static OrderRequestDTO orderRequestDTO;
+    private static Client client;
+    private static Product product1;
+    private static Product product2;
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,6 +58,12 @@ public class OrderControllerTest {
         contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
                 MediaType.APPLICATION_JSON.getSubtype(),
                 Charset.forName("utf8"));
+        client = new Client("John", "john@gmail.com", "hello");
+        client.setId(2L);
+        product1 = new Product(200, "cadeira");
+        product1.setId(1L);
+        product2 = new Product(500, "mesa");
+        product2.setId(2L);
     }
 
     @Test
@@ -182,7 +194,7 @@ public class OrderControllerTest {
 
     @Test
     public void createOrderShouldReturnError_when_productCodeIsNotRegistered() throws Exception {
-        orderRequestDTO.setClientId(3L);
+        orderRequestDTO.setClientId(2L);
         orderRequestDTO.setAddress("Londrina");
         orderRequestDTO.setOrderedProductCodes(new ArrayList<>(Arrays.asList(10L)));
         orderRequestDTO.setTotalPrice(3000);
@@ -199,6 +211,34 @@ public class OrderControllerTest {
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.status", is("error")))
                 .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
+                .andDo(print());
+    }
+
+    @Test
+    public void createOrderShouldReturnSavedOrderDTO_when_allParametersAreOK() throws Exception {
+        orderRequestDTO.setClientId(2L);
+        orderRequestDTO.setAddress("Londrina");
+        orderRequestDTO.setOrderedProductCodes(new ArrayList<>(Arrays.asList(1L, 2L)));
+        orderRequestDTO.setTotalPrice(3000);
+        String orderDTOJson = objectMapper.writeValueAsString(orderRequestDTO);
+        OrderModel savedOrder = new OrderModel("Londrina", 3000, client, new ArrayList<>(Arrays.asList(product1, product2)));
+        savedOrder.setId(1L);
+
+        when(clientServiceMock.isClientRegistered(any())).thenReturn(true);
+        when(productServiceMock.existProduct(any())).thenReturn(true);
+        when(orderServiceMock.saveOrder(any(), any(), anyInt(), any())).thenReturn(savedOrder);
+
+        mockMvc.perform(post("/order")
+                .contentType(contentType)
+                .content(orderDTOJson))
+                .andExpect(status().is(200))
+                .andExpect(content().contentType(contentType))
+                .andExpect(jsonPath("$.orderId", is(1)))
+                .andExpect(jsonPath("$.clientId", is(2)))
+                .andExpect(jsonPath("$.orderedProductCodes[0]", is(1)))
+                .andExpect(jsonPath("$.orderedProductCodes[1]", is(2)))
+                .andExpect(jsonPath("$.totalPrice", is(3000)))
+                .andExpect(jsonPath("$.address", is("Londrina")))
                 .andDo(print());
     }
 }

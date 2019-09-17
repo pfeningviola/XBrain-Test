@@ -24,6 +24,8 @@ public class OrderModel {
     )
     private List<Product> orderedProducts;
 
+    public OrderModel(){}
+
     public OrderModel(String address, int totalPrice, Client client, ArrayList<Product> orderedProducts) {
         this.address = address;
         this.totalPrice = totalPrice;
