@@ -17,14 +17,20 @@ public class ProductService {
     }
 
     public boolean existProduct(Long id){
-        return productRepository.existsById(id);
+        if (id != null) {
+            return productRepository.existsById(id);
+        }
+        return false;
     }
 
     public Product findProductById(Long id){
-        Optional<Product> productOptional = productRepository.findById(id);
         Product product = null;
-        if(productOptional.isPresent()) {
-            product = productOptional.get();
+
+        if (id != null) {
+            Optional<Product> productOptional = productRepository.findById(id);
+            if (productOptional.isPresent()) {
+                product = productOptional.get();
+            }
         }
         return product;
     }
