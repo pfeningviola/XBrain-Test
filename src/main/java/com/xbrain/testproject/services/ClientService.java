@@ -17,14 +17,21 @@ public class ClientService {
     }
 
     public boolean isClientRegistered(Long clientId){
-        return clientRepository.existsById(clientId);
+        if (clientId != null) {
+            return clientRepository.existsById(clientId);
+        }
+        return false;
     }
 
     public Client findClientById(Long id){
-        Optional<Client> clientOptional = clientRepository.findById(id);
         Client client = null;
-        if(clientOptional.isPresent()) {
-            client = clientOptional.get();
+
+        if (id != null) {
+            Optional<Client> clientOptional = clientRepository.findById(id);
+
+            if (clientOptional.isPresent()) {
+                client = clientOptional.get();
+            }
         }
         return client;
     }

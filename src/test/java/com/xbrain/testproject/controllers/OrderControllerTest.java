@@ -11,6 +11,7 @@ import com.xbrain.testproject.services.ProductService;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -190,6 +192,8 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.status", is("error")))
                 .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
                 .andDo(print());
+
+        verify(clientServiceMock, Mockito.times(1)).isClientRegistered(5L);
     }
 
     @Test
@@ -212,6 +216,9 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.status", is("error")))
                 .andExpect(jsonPath("$.message", is(expectedErrorMessage)))
                 .andDo(print());
+
+        verify(clientServiceMock, Mockito.times(1)).isClientRegistered(2L);
+        verify(productServiceMock, Mockito.times(1)).existProduct(10L);
     }
 
     @Test
@@ -240,5 +247,11 @@ public class OrderControllerTest {
                 .andExpect(jsonPath("$.totalPrice", is(3000)))
                 .andExpect(jsonPath("$.address", is("Londrina")))
                 .andDo(print());
+
+        verify(clientServiceMock, Mockito.times(1)).isClientRegistered(2L);
+        verify(productServiceMock, Mockito.times(1)).existProduct(1L);
+        verify(productServiceMock, Mockito.times(1)).existProduct(2L);
+        verify(orderServiceMock, Mockito.times(1)).saveOrder(any(), any(), anyInt(), any());
+        verify(orderServiceMock, Mockito.times(1)).sendMessage(1L, "Londrina");
     }
 }
