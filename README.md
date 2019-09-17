@@ -17,5 +17,7 @@ Link : https://github.com/pfeningviola/XBrain-Test
 
 
 To run the application you need to build the project in your IDE through the build.gradle file and run the application.
+
 OR you have to install gradle to your PC from https://gradle.org/install/ and navigate to the project directory run $ gradle build command and after that $ gradle bootRun
+
 To open the database console navigate to http://localhost:8080/h2-console/ in your browser.
