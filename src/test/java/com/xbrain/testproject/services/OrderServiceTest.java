@@ -34,6 +34,7 @@ public class OrderServiceTest {
         product2.setId(2L);
     }
 
+    //tryed to test the message sending and receiving via RabbitMQ, but I didn't find working solution
     @Test
     public void saveOrderShouldReturnProperResult_when_OrderIsSaved() {
         OrderModel expectedOrder = new OrderModel("Londrina", 3000, client, new ArrayList<>(Arrays.asList(product1, product2)));
